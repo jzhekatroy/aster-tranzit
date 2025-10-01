@@ -1,0 +1,14 @@
+; Пример конфигурации ODBC
+; Этот файл должен быть помещен в /etc/odbc.ini
+
+[phone_proxy_dsn]
+Description = Phone Proxy Database
+Driver = MySQL
+Server = localhost
+Port = 3306
+Database = phone_proxy
+UserName = asterisk
+Password = asterisk
+Option = 3
+Socket = /var/run/mysqld/mysqld.sock
+

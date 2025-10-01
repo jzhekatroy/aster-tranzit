@@ -1,0 +1,32 @@
+; Пример конфигурации SIP транков
+; Добавьте эти секции в ваш /etc/asterisk/sip.conf
+
+; Входящий транк (от провайдера)
+[inbound-trunk]
+type=peer
+host=sip.your-provider.com
+username=your_username
+secret=your_password
+context=incoming  ; Направляем в наш контекст incoming
+insecure=port,invite
+dtmfmode=rfc2833
+canreinvite=no
+nat=yes
+
+; Исходящий транк (для звонков на реальные номера)
+[outbound-trunk]
+type=peer
+host=sip.your-outbound-provider.com
+username=your_outbound_username
+secret=your_outbound_password
+context=outbound
+insecure=port,invite
+dtmfmode=rfc2833
+canreinvite=no
+nat=yes
+fromuser=your_number
+fromdomain=your-domain.com
+
+; Регистрация на входящем транке (если требуется)
+register => your_username:your_password@sip.your-provider.com
+
