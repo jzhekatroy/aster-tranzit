@@ -235,6 +235,32 @@ def export_csv():
         return jsonify({'error': f'Ошибка экспорта: {str(e)}'}), 500
 
 
+@bp.route('/clear', methods=['POST'])
+def clear_all():
+    """
+    Очистить все номера из базы данных
+    
+    Returns:
+        JSON с результатом операции
+    """
+    try:
+        success = db.clear_all_mappings()
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Все номера успешно удалены'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Ошибка при очистке базы данных'
+            }), 500
+    
+    except Exception as e:
+        return jsonify({'error': f'Ошибка: {str(e)}'}), 500
+
+
 @bp.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""

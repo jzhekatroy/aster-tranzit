@@ -81,19 +81,66 @@ function displayList(mappings) {
     document.getElementById('listSection').style.display = 'block';
 }
 
-// Скачать результаты
+// Скачать результаты (только фейковые номера)
 function downloadResults() {
     if (currentResults.length === 0) {
         showError('Нет данных для скачивания');
         return;
     }
     
-    let csv = 'Real Phone,Fake Phone\n';
-    currentResults.forEach(mapping => {
-        csv += `${mapping.real_phone},${mapping.fake_phone}\n`;
-    });
+    // Только фейковые номера построчно, без заголовков
+    let content = currentResults.map(m => m.fake_phone).join('\n');
     
-    downloadCSV(csv, 'phone_mappings.csv');
+    downloadCSV(content, 'fake_phones.txt');
+}
+
+// Показать текущие номера
+async function showCurrentNumbers() {
+    try {
+        const response = await fetch('/mappings');
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            if (data.mappings.length === 0) {
+                showError('Нет сохраненных номеров');
+                return;
+            }
+            
+            displayList(data.mappings);
+        } else {
+            showError(data.error || 'Ошибка при загрузке данных');
+        }
+    } catch (error) {
+        showError('Ошибка соединения с сервером: ' + error.message);
+    }
+}
+
+// Очистить все номера
+async function clearAllNumbers() {
+    if (!confirm('Вы уверены? Все номера будут удалены из базы данных!')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/clear', {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Скрыть список и кнопку скачать
+            document.getElementById('listSection').style.display = 'none';
+            document.getElementById('downloadSection').style.display = 'none';
+            currentResults = [];
+            
+            alert('Все номера успешно удалены!');
+        } else {
+            showError(data.error || 'Ошибка при очистке');
+        }
+    } catch (error) {
+        showError('Ошибка соединения с сервером: ' + error.message);
+    }
 }
 
 // Скачивание CSV

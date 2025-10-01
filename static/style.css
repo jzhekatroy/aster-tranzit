@@ -163,6 +163,30 @@ h2 {
     font-size: 1.2em;
 }
 
+.btn-danger {
+    background: var(--error-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Секция управления */
+.controls-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--bg-light);
+    border-radius: 12px;
+}
+
+.controls-section .btn {
+    margin: 0 10px;
+}
+
 /* Загрузка */
 .loading {
     text-align: center;

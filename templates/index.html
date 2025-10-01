@@ -14,6 +14,12 @@
         </header>
 
         <main>
+            <!-- Кнопки управления -->
+            <section class="controls-section">
+                <button onclick="showCurrentNumbers()" class="btn btn-secondary">📋 Показать текущие номера</button>
+                <button onclick="clearAllNumbers()" class="btn btn-danger">🗑️ Очистить всё</button>
+            </section>
+
             <!-- Форма загрузки -->
             <section class="upload-section">
                 <h2>Загрузить номера</h2>
@@ -39,7 +45,7 @@
                 
                 <!-- Кнопка скачать (показывается после загрузки) -->
                 <div id="downloadSection" style="display: none; margin-top: 20px;">
-                    <button onclick="downloadResults()" class="btn btn-success btn-large">📥 Скачать результат</button>
+                    <button onclick="downloadResults()" class="btn btn-success btn-large">📥 Скачать фейковые номера</button>
                 </div>
             </section>
 
