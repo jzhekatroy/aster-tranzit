@@ -27,7 +27,7 @@
                             <span class="file-text">Выберите CSV файл</span>
                         </label>
                     </div>
-                    <button type="submit" class="btn btn-primary">Загрузить и сгенерировать</button>
+                    <button type="submit" class="btn btn-primary">Загрузить</button>
                 </form>
 
                 <div id="loading" class="loading" style="display: none;">
@@ -36,65 +36,26 @@
                 </div>
 
                 <div id="error" class="alert alert-error" style="display: none;"></div>
-                <div id="success" class="alert alert-success" style="display: none;"></div>
-            </section>
-
-            <!-- Результаты -->
-            <section class="results-section" id="resultsSection" style="display: none;">
-                <h2>Результаты генерации</h2>
-                <div class="stats">
-                    <div class="stat-card">
-                        <span class="stat-label">Всего номеров:</span>
-                        <span class="stat-value" id="totalCount">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Новых:</span>
-                        <span class="stat-value stat-new" id="newCount">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Существующих:</span>
-                        <span class="stat-value stat-existing" id="existingCount">0</span>
-                    </div>
-                </div>
-
-                <div class="table-controls">
-                    <button onclick="exportResults()" class="btn btn-secondary">Экспортировать CSV</button>
-                    <button onclick="copyToClipboard()" class="btn btn-secondary">Копировать фейковые номера</button>
-                </div>
-
-                <div class="table-wrapper">
-                    <table id="resultsTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Реальный номер</th>
-                                <th>Фейковый номер</th>
-                                <th>Статус</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsBody">
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Все маппинги -->
-            <section class="mappings-section">
-                <h2>Все сохраненные номера</h2>
-                <button onclick="loadAllMappings()" class="btn btn-secondary">Загрузить все</button>
-                <button onclick="exportAllMappings()" class="btn btn-secondary">Экспортировать все</button>
                 
-                <div id="allMappings" class="table-wrapper" style="display: none; margin-top: 20px;">
+                <!-- Кнопка скачать (показывается после загрузки) -->
+                <div id="downloadSection" style="display: none; margin-top: 20px;">
+                    <button onclick="downloadResults()" class="btn btn-success btn-large">📥 Скачать результат</button>
+                </div>
+            </section>
+
+            <!-- Список номеров -->
+            <section class="list-section" id="listSection" style="display: none;">
+                <h3>Количество номеров: <span id="phoneCount">0</span></h3>
+                
+                <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
                                 <th>Реальный номер</th>
                                 <th>Фейковый номер</th>
-                                <th>Дата создания</th>
                             </tr>
                         </thead>
-                        <tbody id="allMappingsBody">
+                        <tbody id="phoneListBody">
                         </tbody>
                     </table>
                 </div>

@@ -147,6 +147,22 @@ h2 {
     background: var(--border-color);
 }
 
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-large {
+    padding: 16px 40px;
+    font-size: 1.2em;
+}
+
 /* Загрузка */
 .loading {
     text-align: center;

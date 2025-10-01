@@ -13,16 +13,18 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         return;
     }
     
-    // Скрываем предыдущие сообщения
-    hideMessages();
+    // Скрываем предыдущие элементы
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('downloadSection').style.display = 'none';
+    document.getElementById('listSection').style.display = 'none';
     
     // Показываем загрузку
     document.getElementById('loading').style.display = 'block';
-    document.getElementById('resultsSection').style.display = 'none';
     
     // Создаем FormData
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('clear_old', 'true'); // Флаг для очистки базы
     
     try {
         const response = await fetch('/upload', {
@@ -34,8 +36,13 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         
         if (response.ok && data.success) {
             currentResults = data.mappings;
-            displayResults(data);
-            showSuccess(`Успешно обработано ${data.total} номеров (новых: ${data.new}, существующих: ${data.existing})`);
+            
+            // Показываем кнопку скачать
+            document.getElementById('downloadSection').style.display = 'block';
+            
+            // Показываем список
+            displayList(data.mappings);
+            
             fileInput.value = ''; // Очистка input
         } else {
             showError(data.error || 'Ошибка при обработке файла');
@@ -55,105 +62,38 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
     }
 });
 
-// Отображение результатов
-function displayResults(data) {
-    document.getElementById('totalCount').textContent = data.total;
-    document.getElementById('newCount').textContent = data.new;
-    document.getElementById('existingCount').textContent = data.existing;
-    
-    const tbody = document.getElementById('resultsBody');
+// Отображение списка номеров
+function displayList(mappings) {
+    const tbody = document.getElementById('phoneListBody');
     tbody.innerHTML = '';
     
-    data.mappings.forEach((mapping, index) => {
+    document.getElementById('phoneCount').textContent = mappings.length;
+    
+    mappings.forEach((mapping) => {
         const row = document.createElement('tr');
-        const statusBadge = mapping.status === 'new' 
-            ? '<span class="badge badge-new">Новый</span>'
-            : '<span class="badge badge-existing">Существующий</span>';
-        
         row.innerHTML = `
-            <td>${index + 1}</td>
             <td>${mapping.real_phone}</td>
             <td><strong>${mapping.fake_phone}</strong></td>
-            <td>${statusBadge}</td>
         `;
         tbody.appendChild(row);
     });
     
-    document.getElementById('resultsSection').style.display = 'block';
+    document.getElementById('listSection').style.display = 'block';
 }
 
-// Загрузка всех маппингов
-async function loadAllMappings() {
-    try {
-        const response = await fetch('/mappings');
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-            const tbody = document.getElementById('allMappingsBody');
-            tbody.innerHTML = '';
-            
-            if (data.mappings.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Нет сохраненных номеров</td></tr>';
-            } else {
-                data.mappings.forEach((mapping, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${mapping.real_phone}</td>
-                        <td><strong>${mapping.fake_phone}</strong></td>
-                        <td>${new Date(mapping.created_at).toLocaleString('ru-RU')}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-            
-            document.getElementById('allMappings').style.display = 'block';
-        } else {
-            showError(data.error || 'Ошибка при загрузке данных');
-        }
-    } catch (error) {
-        showError('Ошибка соединения с сервером: ' + error.message);
-    }
-}
-
-// Экспорт текущих результатов
-function exportResults() {
+// Скачать результаты
+function downloadResults() {
     if (currentResults.length === 0) {
-        showError('Нет данных для экспорта');
+        showError('Нет данных для скачивания');
         return;
     }
     
-    let csv = 'Real Phone,Fake Phone,Status\n';
+    let csv = 'Real Phone,Fake Phone\n';
     currentResults.forEach(mapping => {
-        csv += `${mapping.real_phone},${mapping.fake_phone},${mapping.status}\n`;
+        csv += `${mapping.real_phone},${mapping.fake_phone}\n`;
     });
     
-    downloadCSV(csv, 'phone_mappings_results.csv');
-}
-
-// Экспорт всех маппингов
-async function exportAllMappings() {
-    try {
-        window.location.href = '/export/csv';
-    } catch (error) {
-        showError('Ошибка при экспорте: ' + error.message);
-    }
-}
-
-// Копирование фейковых номеров в буфер обмена
-function copyToClipboard() {
-    if (currentResults.length === 0) {
-        showError('Нет данных для копирования');
-        return;
-    }
-    
-    const fakePhones = currentResults.map(m => m.fake_phone).join('\n');
-    
-    navigator.clipboard.writeText(fakePhones).then(() => {
-        showSuccess('Фейковые номера скопированы в буфер обмена');
-    }).catch(err => {
-        showError('Ошибка копирования: ' + err.message);
-    });
+    downloadCSV(csv, 'phone_mappings.csv');
 }
 
 // Скачивание CSV
@@ -181,23 +121,5 @@ function showError(message) {
     setTimeout(() => {
         errorDiv.style.display = 'none';
     }, 5000);
-}
-
-// Показ успеха
-function showSuccess(message) {
-    const successDiv = document.getElementById('success');
-    successDiv.textContent = message;
-    successDiv.style.display = 'block';
-    
-    // Автоматически скрыть через 5 секунд
-    setTimeout(() => {
-        successDiv.style.display = 'none';
-    }, 5000);
-}
-
-// Скрыть все сообщения
-function hideMessages() {
-    document.getElementById('error').style.display = 'none';
-    document.getElementById('success').style.display = 'none';
 }
 

@@ -45,6 +45,9 @@ def upload_file():
         return jsonify({'error': 'Разрешены только CSV файлы'}), 400
     
     try:
+        # Проверяем флаг очистки базы
+        clear_old = request.form.get('clear_old', 'false').lower() == 'true'
+        
         # Сохраняем файл
         filename = secure_filename(file.filename)
         filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
@@ -57,10 +60,16 @@ def upload_file():
             os.remove(filepath)
             return jsonify({'error': 'В файле не найдено валидных номеров'}), 400
         
-        # Получаем существующие фейковые номера для проверки уникальности
-        existing_mappings = db.get_all_mappings()
-        existing_fake_phones = {m['fake_phone'] for m in existing_mappings}
-        existing_real_phones = {m['real_phone'] for m in existing_mappings}
+        # Если нужно, очищаем базу
+        if clear_old:
+            db.clear_all_mappings()
+            existing_fake_phones = set()
+            existing_real_phones = set()
+        else:
+            # Получаем существующие фейковые номера для проверки уникальности
+            existing_mappings = db.get_all_mappings()
+            existing_fake_phones = {m['fake_phone'] for m in existing_mappings}
+            existing_real_phones = {m['real_phone'] for m in existing_mappings}
         
         # Генерируем фейковые номера
         mappings = []

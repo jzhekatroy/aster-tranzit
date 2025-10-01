@@ -195,4 +195,23 @@ class Database:
         finally:
             if connection.is_connected():
                 connection.close()
+    
+    def clear_all_mappings(self):
+        """Очистить все связки номеров"""
+        connection = self.get_connection()
+        if not connection:
+            return False
+        
+        try:
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM phone_mappings")
+            connection.commit()
+            cursor.close()
+            return True
+        except Error as e:
+            print(f"Ошибка очистки маппингов: {e}")
+            return False
+        finally:
+            if connection.is_connected():
+                connection.close()
 
