@@ -36,19 +36,23 @@ apt-get install -y python3 python3-pip python3-venv python3-dev build-essential
 # Установка MySQL/MariaDB
 echo ""
 echo "3. Установка MySQL/MariaDB..."
-# Пробуем установить MySQL, если не получится - устанавливаем MariaDB
-if apt-cache show mysql-server &>/dev/null; then
-    apt-get install -y mysql-server mysql-client
-    DB_SERVICE="mysql"
-else
-    echo "MySQL не найден, устанавливаем MariaDB (полностью совместим с MySQL)..."
+# Сначала пробуем MariaDB (стандарт для Debian/Ubuntu)
+if apt-cache show mariadb-server &>/dev/null; then
+    echo "Устанавливаем MariaDB (полностью совместим с MySQL)..."
     apt-get install -y mariadb-server mariadb-client
     DB_SERVICE="mariadb"
+elif apt-get install -y mysql-server mysql-client 2>/dev/null; then
+    echo "Устанавливаем MySQL..."
+    DB_SERVICE="mysql"
+else
+    echo "ОШИБКА: Не удалось установить MySQL или MariaDB"
+    exit 1
 fi
 
 # Запуск MySQL/MariaDB
 systemctl start $DB_SERVICE
 systemctl enable $DB_SERVICE
+echo "База данных $DB_SERVICE установлена и запущена!"
 
 # Установка Asterisk
 echo ""
