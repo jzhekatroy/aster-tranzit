@@ -1,12 +1,13 @@
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
+    --primary-color: #FFE500;
+    --primary-hover: #E6CE00;
     --success-color: #10b981;
     --error-color: #ef4444;
     --text-color: #1f2937;
     --text-light: #6b7280;
     --border-color: #e5e7eb;
-    --bg-light: #f9fafb;
+    --bg-light: #ffffff;
+    --header-bg: #000000;
 }
 
 * {
@@ -19,39 +20,49 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0;
+    margin: 0;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--header-bg);
     color: white;
-    padding: 40px;
+    padding: 20px 40px;
     text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-header h1 {
-    font-size: 2.5em;
+.logo {
+    height: 60px;
     margin-bottom: 10px;
 }
 
 header p {
-    font-size: 1.1em;
+    font-size: 1em;
     opacity: 0.9;
+    margin: 0;
 }
 
 main {
     padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
 }
 
 section {
@@ -104,11 +115,6 @@ h2 {
     background: #eff6ff;
 }
 
-.file-icon {
-    font-size: 3em;
-    margin-right: 15px;
-}
-
 .file-text {
     font-size: 1.1em;
     color: var(--text-light);
@@ -127,13 +133,14 @@ h2 {
 
 .btn-primary {
     background: var(--primary-color);
-    color: white;
+    color: #000000;
+    font-weight: 600;
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 229, 0, 0.4);
 }
 
 .btn-secondary {
@@ -321,11 +328,11 @@ tbody tr:hover {
 
 /* Footer */
 footer {
-    background: var(--bg-light);
+    background: var(--header-bg);
     padding: 20px;
     text-align: center;
-    color: var(--text-light);
-    border-top: 1px solid var(--border-color);
+    color: white;
+    margin-top: auto;
 }
 
 /* Адаптивность */

@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, send_file
+from flask import Blueprint, render_template, request, jsonify, send_file, session, redirect, url_for
+from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 from app.models import Database
@@ -17,14 +18,51 @@ db = Database()
 # Инициализация БД при старте
 db.create_tables()
 
+# Простая авторизация
+USERNAME = 'admin'
+PASSWORD = 'finenumbers2025'
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('main.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    """Страница авторизации"""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if username == USERNAME and password == PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('main.index'))
+        else:
+            return render_template('login.html', error='Неверное имя пользователя или пароль')
+    
+    return render_template('login.html')
+
+
+@bp.route('/logout')
+def logout():
+    """Выход из системы"""
+    session.pop('logged_in', None)
+    return redirect(url_for('main.login'))
+
 
 @bp.route('/')
+@login_required
 def index():
     """Главная страница с формой загрузки"""
     return render_template('index.html')
 
 
 @bp.route('/upload', methods=['POST'])
+@login_required
 def upload_file():
     """
     Загрузить CSV файл с номерами и сгенерировать фейковые
@@ -123,6 +161,7 @@ def upload_file():
 
 
 @bp.route('/mappings', methods=['GET'])
+@login_required
 def get_mappings():
     """
     Получить все существующие связки
@@ -236,6 +275,7 @@ def export_csv():
 
 
 @bp.route('/clear', methods=['POST'])
+@login_required
 def clear_all():
     """
     Очистить все номера из базы данных

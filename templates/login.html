@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Phone Proxy System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #ffffff;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-box .logo {
+            height: 80px;
+            margin-bottom: 30px;
+        }
+        .login-box h2 {
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+        .login-box form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .login-box input {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .login-box button {
+            padding: 14px;
+            background: var(--primary-color);
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .login-box button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        .error-message {
+            color: var(--error-color);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Finenumbers" class="logo">
+            <h2>Вход в систему</h2>
+            <form method="POST" action="{{ url_for('main.login') }}">
+                <input type="text" name="username" placeholder="Имя пользователя" required autofocus>
+                <input type="password" name="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+            {% if error %}
+            <p class="error-message">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+

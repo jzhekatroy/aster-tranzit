@@ -9,15 +9,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>📞 Phone Proxy System</h1>
-            <p>Система проксирования телефонных номеров</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+                <div style="flex: 1;"></div>
+                <div style="text-align: center; flex: 1;">
+                    <img src="{{ url_for('static', filename='logo.svg') }}" alt="Finenumbers" class="logo">
+                    <p>Система маскарадинга телефонных номеров</p>
+                </div>
+                <div style="flex: 1; text-align: right;">
+                    <a href="{{ url_for('main.logout') }}" style="color: white; text-decoration: none; padding: 8px 16px; border: 1px solid white; border-radius: 4px; font-size: 0.9em;">Выход</a>
+                </div>
+            </div>
         </header>
 
         <main>
             <!-- Кнопки управления -->
             <section class="controls-section">
-                <button onclick="showCurrentNumbers()" class="btn btn-secondary">📋 Показать текущие номера</button>
-                <button onclick="clearAllNumbers()" class="btn btn-danger">🗑️ Очистить всё</button>
+                <button onclick="showCurrentNumbers()" class="btn btn-secondary">Показать текущие номера</button>
+                <button onclick="clearAllNumbers()" class="btn btn-danger">Очистить всё</button>
             </section>
 
             <!-- Форма загрузки -->
@@ -29,7 +37,6 @@
                     <div class="file-input-wrapper">
                         <input type="file" id="fileInput" name="file" accept=".csv" required>
                         <label for="fileInput" class="file-label">
-                            <span class="file-icon">📄</span>
                             <span class="file-text">Выберите CSV файл</span>
                         </label>
                     </div>
@@ -45,7 +52,7 @@
                 
                 <!-- Кнопка скачать (показывается после загрузки) -->
                 <div id="downloadSection" style="display: none; margin-top: 20px;">
-                    <button onclick="downloadResults()" class="btn btn-success btn-large">📥 Скачать фейковые номера</button>
+                    <button onclick="downloadResults()" class="btn btn-success btn-large">Скачать фейковые номера</button>
                 </div>
             </section>
 
@@ -69,7 +76,7 @@
         </main>
 
         <footer>
-            <p>Aster-Tranzit © 2025</p>
+            <p>Finenumbers © 2025</p>
         </footer>
     </div>
 
