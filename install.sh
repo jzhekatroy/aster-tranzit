@@ -33,14 +33,22 @@ echo ""
 echo "2. Установка Python и pip..."
 apt-get install -y python3 python3-pip python3-venv python3-dev build-essential
 
-# Установка MySQL
+# Установка MySQL/MariaDB
 echo ""
-echo "3. Установка MySQL..."
-apt-get install -y mysql-server mysql-client
+echo "3. Установка MySQL/MariaDB..."
+# Пробуем установить MySQL, если не получится - устанавливаем MariaDB
+if apt-cache show mysql-server &>/dev/null; then
+    apt-get install -y mysql-server mysql-client
+    DB_SERVICE="mysql"
+else
+    echo "MySQL не найден, устанавливаем MariaDB (полностью совместим с MySQL)..."
+    apt-get install -y mariadb-server mariadb-client
+    DB_SERVICE="mariadb"
+fi
 
-# Запуск MySQL
-systemctl start mysql
-systemctl enable mysql
+# Запуск MySQL/MariaDB
+systemctl start $DB_SERVICE
+systemctl enable $DB_SERVICE
 
 # Установка Asterisk
 echo ""
@@ -78,8 +86,18 @@ fi
 # Создание БД
 echo ""
 echo "9. Создание базы данных..."
-read -p "Введите пароль root для MySQL: " MYSQL_ROOT_PASSWORD
-mysql -u root -p"$MYSQL_ROOT_PASSWORD" < database/schema.sql
+echo "ВАЖНО: Если у вас новая установка MariaDB, пароль root может быть пустым."
+echo "Если пароль пустой - просто нажмите Enter"
+read -sp "Введите пароль root для MySQL/MariaDB (или Enter если пусто): " MYSQL_ROOT_PASSWORD
+echo ""
+
+if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
+    # Пустой пароль - подключаемся без пароля
+    mysql -u root < database/schema.sql
+else
+    # С паролем
+    mysql -u root -p"$MYSQL_ROOT_PASSWORD" < database/schema.sql
+fi
 echo "База данных создана!"
 
 # Создание директории для uploads
@@ -136,7 +154,7 @@ echo "14. Создание systemd service..."
 cat > /etc/systemd/system/phone-proxy.service << EOF
 [Unit]
 Description=Phone Proxy System Flask Application
-After=network.target mysql.service
+After=network.target mysql.service mariadb.service
 
 [Service]
 Type=simple

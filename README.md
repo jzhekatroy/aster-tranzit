@@ -22,7 +22,7 @@
 ### Требования
 - Ubuntu/Debian сервер
 - Python 3.8+
-- MySQL 8.0+
+- MySQL 8.0+ или MariaDB 10.5+
 - Asterisk 18+
 
 ### Установка
