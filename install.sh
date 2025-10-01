@@ -57,12 +57,91 @@ echo "База данных $DB_SERVICE установлена и запущен
 # Установка Asterisk
 echo ""
 echo "4. Установка Asterisk..."
-apt-get install -y asterisk asterisk-mysql
+
+# Проверяем есть ли Asterisk в репозиториях
+if apt-cache show asterisk &>/dev/null; then
+    echo "Устанавливаем Asterisk из репозитория..."
+    apt-get install -y asterisk asterisk-mysql
+else
+    echo "Asterisk не найден в репозиториях, компилируем из исходников..."
+    echo "Это займет 10-15 минут..."
+    
+    # Установка зависимостей для компиляции
+    apt-get install -y build-essential wget libssl-dev libncurses5-dev \
+        libnewt-dev libxml2-dev linux-headers-$(uname -r) libsqlite3-dev \
+        uuid-dev libjansson-dev libedit-dev subversion git curl
+    
+    # Скачивание Asterisk
+    cd /usr/src
+    ASTERISK_VERSION="20.10.0"
+    
+    if [ ! -d "asterisk-${ASTERISK_VERSION}" ]; then
+        echo "Скачиваем Asterisk ${ASTERISK_VERSION}..."
+        wget -q "https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-${ASTERISK_VERSION}.tar.gz"
+        tar -xzf "asterisk-${ASTERISK_VERSION}.tar.gz"
+        rm "asterisk-${ASTERISK_VERSION}.tar.gz"
+    fi
+    
+    cd "asterisk-${ASTERISK_VERSION}"
+    
+    # Установка дополнительных зависимостей
+    echo "Устанавливаем зависимости Asterisk..."
+    ./contrib/scripts/install_prereq install -y
+    
+    # Конфигурация и компиляция
+    echo "Конфигурируем Asterisk..."
+    ./configure --with-jansson-bundled --with-pjproject-bundled
+    
+    echo "Компилируем Asterisk (это займет время)..."
+    make -j$(nproc)
+    
+    echo "Устанавливаем Asterisk..."
+    make install
+    make samples
+    make config
+    
+    # Создание пользователя asterisk
+    if ! id asterisk &>/dev/null; then
+        groupadd asterisk
+        useradd -r -d /var/lib/asterisk -g asterisk asterisk
+    fi
+    
+    # Установка прав
+    chown -R asterisk:asterisk /var/lib/asterisk /var/spool/asterisk /var/log/asterisk /var/run/asterisk /etc/asterisk
+    
+    # Настройка systemd
+    if [ ! -f /etc/systemd/system/asterisk.service ]; then
+        cat > /etc/systemd/system/asterisk.service << 'ASTERISKEOF'
+[Unit]
+Description=Asterisk PBX
+After=network.target
+
+[Service]
+Type=forking
+User=asterisk
+Group=asterisk
+ExecStart=/usr/sbin/asterisk -f -C /etc/asterisk/asterisk.conf
+ExecReload=/usr/sbin/asterisk -rx 'core reload'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+ASTERISKEOF
+        systemctl daemon-reload
+    fi
+    
+    cd "$PROJECT_DIR"
+    echo "Asterisk установлен из исходников!"
+fi
 
 # Установка ODBC для Asterisk
 echo ""
 echo "5. Установка ODBC драйверов..."
 apt-get install -y unixodbc unixodbc-dev odbc-mariadb
+
+# Запуск Asterisk
+systemctl start asterisk
+systemctl enable asterisk
 
 # Создание виртуального окружения Python
 echo ""
@@ -146,11 +225,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "Конфиги скопированы!"
 fi
 
-# Перезапуск Asterisk
+# Перезапуск Asterisk для применения конфигурации
 echo ""
-echo "13. Перезапуск Asterisk..."
+echo "13. Перезапуск Asterisk для применения конфигурации..."
 systemctl restart asterisk
-systemctl enable asterisk
 
 # Создание systemd service для Flask приложения
 echo ""
