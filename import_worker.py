@@ -158,9 +158,8 @@ class ImportWorker:
         if not data_rows:
             raise ValueError("Нет данных после заголовка")
 
-        mappings = []
-        seen_real = set()
-        seen_fake = set()
+        mappings_map = {}          # real_phone -> fake_phone (последнее значение)
+        reverse_map = {}           # fake_phone -> real_phone (для поддержания уникальности)
 
         for idx, row in enumerate(data_rows, start=2):  # старт с 2 из-за заголовка
             if len(row) < 2:
@@ -180,14 +179,20 @@ class ImportWorker:
             if len(fake_phone) < 3 or len(fake_phone) > 64:
                 raise ValueError(f"Невалидный fake_phone в строке {idx}: {raw_fake}")
 
-            if real_phone in seen_real:
-                raise ValueError(f"Дубликат real_phone '{real_phone}' в строке {idx}")
-            if fake_phone in seen_fake:
-                raise ValueError(f"Дубликат fake_phone '{fake_phone}' в строке {idx}")
+            # Если real уже был — убираем старую связь fake->real
+            if real_phone in mappings_map:
+                old_fake = mappings_map[real_phone]
+                reverse_map.pop(old_fake, None)
 
-            seen_real.add(real_phone)
-            seen_fake.add(fake_phone)
-            mappings.append((real_phone, fake_phone))
+            # Если fake уже был на другой real — убираем ту связь
+            if fake_phone in reverse_map:
+                old_real = reverse_map[fake_phone]
+                mappings_map.pop(old_real, None)
+
+            mappings_map[real_phone] = fake_phone
+            reverse_map[fake_phone] = real_phone
+
+        mappings = list(mappings_map.items())
 
         success, error, inserted = self.db.replace_all_mappings(mappings)
         if not success:
