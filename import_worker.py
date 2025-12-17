@@ -171,11 +171,13 @@ class ImportWorker:
                 raise ValueError(f"Пустое значение в строке {idx}")
 
             real_phone = normalize_phone(raw_real)
-            fake_phone = normalize_phone(raw_fake)
+            fake_phone = raw_fake  # фейковый может быть буквенно-цифровым хэшем
 
             if not validate_phone(real_phone):
                 raise ValueError(f"Невалидный real_phone в строке {idx}: {raw_real}")
-            if not validate_phone(fake_phone):
+
+            # Лёгкая валидация для fake: непустой, разумная длина
+            if len(fake_phone) < 3 or len(fake_phone) > 64:
                 raise ValueError(f"Невалидный fake_phone в строке {idx}: {raw_fake}")
 
             if real_phone in seen_real:
