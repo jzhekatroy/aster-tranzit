@@ -10,7 +10,7 @@ class Config:
     SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key-change-in-production')
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     HOST = os.getenv('FLASK_HOST', '0.0.0.0')
-    PORT = int(os.getenv('FLASK_PORT', 5000))
+    PORT = int(os.getenv('FLASK_PORT', 3000))
     
     # MySQL
     MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
@@ -31,4 +31,11 @@ class Config:
     # Phone numbers
     FAKE_NUMBER_LENGTH = 15
     FAKE_NUMBER_PREFIX = '7'  # Начало номера
+
+    # File import worker
+    INCOMING_DIR = os.getenv('INCOMING_DIR', 'data/incoming')
+    ARCHIVE_DIR = os.getenv('ARCHIVE_DIR', 'data/archive')
+    SCAN_INTERVAL = int(os.getenv('SCAN_INTERVAL', 60))  # seconds
+    MAX_FILE_MB = int(os.getenv('MAX_FILE_MB', 16))
+    MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024
 

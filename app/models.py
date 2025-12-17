@@ -215,3 +215,38 @@ class Database:
             if connection.is_connected():
                 connection.close()
 
+    def replace_all_mappings(self, mappings):
+        """
+        Полностью заменить все маппинги на новые данные из файла.
+
+        Args:
+            mappings: список кортежей (real_phone, fake_phone)
+
+        Returns:
+            tuple(bool, str|None, int): успех, ошибка (если есть), количество вставок
+        """
+        connection = self.get_connection()
+        if not connection:
+            return False, "Нет подключения к БД", 0
+
+        try:
+            connection.start_transaction()
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM phone_mappings")
+            if mappings:
+                cursor.executemany(
+                    "INSERT INTO phone_mappings (real_phone, fake_phone) VALUES (%s, %s)",
+                    mappings
+                )
+            connection.commit()
+            inserted = len(mappings)
+            cursor.close()
+            return True, None, inserted
+        except Error as e:
+            if connection.is_connected():
+                connection.rollback()
+            return False, str(e), 0
+        finally:
+            if connection.is_connected():
+                connection.close()
+
